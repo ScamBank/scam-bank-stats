@@ -24,6 +24,65 @@ interface ChartData {
   statusCode: number;
 }
 
+const mockData: Log[] = [
+  {
+    Date: "2024-03-01T10:00:00",
+    RequestName: "GetBalance",
+    ExecutionTime: 150,
+    StatusCode: 200,
+    Description: "Успешное получение баланса",
+  },
+  {
+    Date: "2024-03-01T10:05:00",
+    RequestName: "GetBalance",
+    ExecutionTime: 180,
+    StatusCode: 200,
+    Description: "Успешное получение баланса",
+  },
+  {
+    Date: "2024-03-01T10:10:00",
+    RequestName: "GetBalance",
+    ExecutionTime: 120,
+    StatusCode: 500,
+    Description: "Ошибка сервера",
+  },
+  {
+    Date: "2024-03-01T10:15:00",
+    RequestName: "TransferMoney",
+    ExecutionTime: 250,
+    StatusCode: 200,
+    Description: "Успешный перевод",
+  },
+  {
+    Date: "2024-03-01T10:20:00",
+    RequestName: "TransferMoney",
+    ExecutionTime: 300,
+    StatusCode: 400,
+    Description: "Недостаточно средств",
+  },
+  {
+    Date: "2024-03-01T10:25:00",
+    RequestName: "GetTransactions",
+    ExecutionTime: 200,
+    StatusCode: 200,
+    Description: "Успешное получение транзакций",
+  },
+  {
+    Date: "2024-03-01T10:30:00",
+    RequestName: "GetTransactions",
+    ExecutionTime: 220,
+    StatusCode: 200,
+    Description: "Успешное получение транзакций",
+  },
+  {
+    Date: "2024-03-01T10:35:00",
+    RequestName: "GetTransactions",
+    ExecutionTime: 190,
+    StatusCode: 200,
+    Description: "Успешное получение транзакций",
+  },
+];
+
 const styles = {
   container: {
     padding: "20px",
@@ -74,6 +133,15 @@ const styles = {
     borderRadius: "5px",
     margin: "20px 0",
   },
+  mockDataWarning: {
+    textAlign: "center" as const,
+    color: "#f57c00",
+    padding: "10px",
+    backgroundColor: "#fff3e0",
+    borderRadius: "5px",
+    margin: "10px 0",
+    fontSize: "0.9rem",
+  },
 };
 
 function App() {
@@ -85,15 +153,20 @@ function App() {
     queryKey: ["Logs"],
     retry: 3,
     queryFn: async () => {
-      const response = await fetch(
-        "http://localhost:4000/api/core1c/hs/BankSystem/GetLogs"
-      );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      try {
+        const response = await fetch(
+          "http://localhost:4000/api/core1c/hs/BankSystem/GetLogs"
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log("Полученные данные:", data);
+        return data;
+      } catch (error) {
+        console.log("Ошибка при получении данных, используем тестовые данные");
+        return mockData;
       }
-      const data = await response.json();
-      console.log("Полученные данные:", data);
-      return data;
     },
   });
 
@@ -124,6 +197,11 @@ function App() {
   return (
     <div style={styles.container}>
       <h1 style={styles.header}>Анализ производительности запросов</h1>
+      {logs === mockData && (
+        <div style={styles.mockDataWarning}>
+          Внимание: используются тестовые данные
+        </div>
+      )}
       {Object.entries(groupedData).map(([requestName, data]) => (
         <div key={requestName} style={styles.chartContainer}>
           <h2 style={styles.chartTitle}>{requestName}</h2>
