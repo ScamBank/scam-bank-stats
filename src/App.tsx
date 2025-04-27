@@ -155,7 +155,7 @@ function App() {
     queryFn: async () => {
       try {
         const response = await fetch(
-          "http://localhost:4000/api/core1c/hs/BankSystem/GetLogs"
+          "https://cis.tsu.ru/kondakov_patterns_failures/hs/BankSystem/GetLogs"
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -256,4 +256,3 @@ function App() {
 }
 
 export default App;
-
